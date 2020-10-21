@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import DateJs from "../../lib/utils/date";
 
 import Paper from "@material-ui/core/Paper";
@@ -12,7 +12,8 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Box from "@material-ui/core/Box";
 import { withStyles } from "@material-ui/core/styles";
 import TableControl from "./TableControl";
-import withData, { DataComponentProps } from "./withData";
+import { observer } from "mobx-react-lite";
+import DataContext from "../../stores/dataStore";
 
 const TableCell = withStyles({
   head: {
@@ -20,23 +21,15 @@ const TableCell = withStyles({
   },
 })(RawTableCell);
 
-export function DataTable({ data, fetchData, order, setOrder } : DataComponentProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState();
+export function DataTable() {
+  const store = useContext(DataContext)
+
   const onFetchData = async () => {
-    setLoading(true);
-    setError(undefined);
-    try {
-      await fetchData();
-      setLoading(false);
-    } catch (error) {
-      setError(error);
-      setLoading(false);
-    }
+    await store.fetchData();
   };
 
   const handleSortOrder = () => {
-    setOrder(order === "desc" ? "asc" : "desc");
+    store.switchOrder()
   };
 
   useEffect(() => {
@@ -53,7 +46,7 @@ export function DataTable({ data, fetchData, order, setOrder } : DataComponentPr
               <TableCell>
                 <TableSortLabel
                   active
-                  direction={order}
+                  direction={store.order}
                   onClick={handleSortOrder}
                   data-testid="date-header"
                 >
@@ -66,8 +59,8 @@ export function DataTable({ data, fetchData, order, setOrder } : DataComponentPr
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.length
-              ? data.map((data) => (
+            {store.data.length
+              ? store.data.map((data) => (
                   <TableRow key={data.timestamp}>
                     <TableCell scope="row">
                       {new DateJs(data.timestamp).toFormattedDateString(
@@ -85,7 +78,7 @@ export function DataTable({ data, fetchData, order, setOrder } : DataComponentPr
       </TableContainer>
       <Box p={2} alignItems="center" display="flex" flexDirection="column">
         <TableControl
-          status={loading ? "loading" : error ? "error" : ""}
+          status={store.status}
           fetchData={onFetchData}
         />
       </Box>
@@ -93,4 +86,4 @@ export function DataTable({ data, fetchData, order, setOrder } : DataComponentPr
   );
 }
 
-export default withData(DataTable);
+export default observer(DataTable);
