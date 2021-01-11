@@ -63,7 +63,7 @@
   "compatibilities": [
     "EC2"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:eu-west-1:868342392133:task-definition/first-run-task-definition:4",
+  "taskDefinitionArn": "arn:aws:ecs:eu-west-1:868342392133:task-definition/first-run-task-definition:5",
   "family": "first-run-task-definition",
   "requiresAttributes": [
     {
